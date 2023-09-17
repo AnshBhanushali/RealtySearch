@@ -1,0 +1,519 @@
+{% extends "base.html" %}
+{% load my_tags %}
+{% block title %}
+Agent Dashboard
+{% endblock %}
+{% block body %}
+<div class="b-agent-parent">
+    <div class="b-agent__sidebar">
+            <div>
+                <h1>Hello,  {{ agent.agent.first_name }}!!</h1>    
+            </div>
+            <div class="filter" style="margin-top: 44px; display:flex; flex-direction:column;">
+                <form action="" method="POST">
+                    {% csrf_token %}
+                    <center>
+                        <p>
+                            <h4>Filter Properties</h4>
+                        </p>
+                        <p>
+                            <input type="text" name="filter" placeholder="Property Name..." autocomplete="off" id="" style="border: 1px none !important;">
+                        </p>
+                        <p>
+                            <input type="text" name="area" placeholder="Enter Area.." autocomplete="off" style="border: 1px none !important;" id="">
+                        </p>
+                        <p> 
+                            <input type="radio" name="type" value="filtered" id="">
+                            <Label for="type">Filter</Label>             
+                            <input type="radio" name="type" value="all" id="">
+                            <Label for="type">All</Label>
+                            <input type="radio" name="type" value="sale" id="">
+                            <Label for="type">Sale</Label>
+                            <input type="radio" name="type" value="rent" id="">
+                            <Label for="type">Rent</Label>
+                        </p>
+                        <p>
+                            <input 
+                                type="submit" 
+                                value="Search" 
+                                style="border: 1px;
+                                    background-color: #2d6f68;
+                                    color: white;
+                                    padding: 10px;
+                                    padding-left: 36px;
+                                    padding-right: 36px;
+                                    cursor: pointer;
+                                    font-size: 14px;"
+                            >
+                        </p>
+                    </center>                    
+                </form>    
+            </div>
+            
+            <div class="b-agent-s__options">
+                <div class="options select" id="1" onclick="selector(event, 'sale_rent_update')">
+                    <div>
+                        Update sale/rent
+                    </div>    
+                </div>
+                <div class="options" id="2" onclick="selector(event, 'sale_report')">
+                    Sales Report
+                </div>
+            </div>    
+            <div class="nav-buttons">
+                <a href="/logout/">
+                    <button 
+                    class="btn_update"
+                    style="
+                        border: 1px none !important;
+                        background-color: #2d6f68;
+                        color: white;
+                        margin-top: -14px;
+                        padding:11px;
+                        padding-left: 55px;
+                        padding-right: 55px;
+                        border-radius: 11px;
+                    "
+                    >
+                        Logout
+                    </button>
+                </a>
+            </div>
+    </div>    
+    <div class="b-agent">
+        <div class="b-main-content" id="sale_rent_update">
+            <div 
+            class="b-agent__message" 
+            style="position: fixed;
+                top: 21px;
+                margin-left: 59px;"
+            >
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            {% for property in properties|in_property:''%}
+                    
+                <div class="b-property">
+                    <div class="b-property__image">
+                        <img 
+                            src="{{ property.property_image.url }}"  
+                            alt="property image" 
+                            width="200px" 
+                            height="200px"
+                        >
+                    </div>
+                    <div class="b-property__details">
+                        <div class="b-property__details__name">
+                            {{ property.property_name }}
+                        </div>
+                        <div class="b-property__details__area">
+                            {{ property.address.area.area}}
+                        </div>
+                        <div class="b-property__details__size">
+                            {{ property.no_of_bedrooms}} BHK Flat ( Floor : {{ property.floor }} )
+                        </div>
+                        <div class="" style="margin-top: 4px;">
+                            For {{ property.tag }}
+                        </div>
+                        <div class="b-property__details__price">
+                            {% if property.price|divide:1000 < 100 %}
+                                ₹ {{ property.price|divide:1000 }} k
+                            {% else %}
+                            ₹ {{ property.price|divide:100000 }} Lakh
+                            {% endif %} 
+                        </div>
+                        <div class="b-property__details__address">
+                            {{ property.address.description }}
+                        </div>
+                        {{ property.owner.first_name}}
+                    </div>
+                    <div class="b-property__action">
+                        <a href="{% url 'purchase_client' property_id=property.property_id %}">
+                            <button class="btn_update">
+                                {% if property.tag|isequal:'rent' %}
+                                    Rented
+                                {% else %}
+                                    Sold 
+                                {% endif %}
+                            </button>
+                        </a> 
+                        <br>
+                        <br>
+                        <button onclick="show_property_details('b-prop-details-{{property.property_id}}')" class="btn_update">
+                            Details
+                        </button>   
+                    </div>
+                    <div class="b-property-details__parent not_show" id="b-prop-details-{{property.property_id}}">
+                        <div class="b-property-details">
+                            <div
+                                style="display: flex;
+                                flex-direction: row-reverse;
+                                justify-content:start;
+                                align-items:flex-end;
+                                font-size:28px;
+                                
+                                "
+                            >
+                                <div style="cursor:pointer;" onclick="close_details('b-prop-details-{{property.property_id}}')">
+                                    &#10006;
+                                </div>
+                            </div>
+                            <div style="padding: 48px;">
+                            
+                            <div class="b-property">
+                                <div class="b-property__image">
+                                    <img 
+                                        src="{{ property.property_image.url }}"  
+                                        alt="property image" 
+                                        width="200px" 
+                                        height="200px"
+                                    >
+                                </div>
+                                <div class="b-property__details">
+                                    <div class="b-property__details__name">
+                                        {{ property.property_name }}
+                                    </div>
+                                    <div class="b-property__details__area">
+                                        {{ property.address.area.area}}
+                                    </div>
+                                    <div class="b-property__details__size">
+                                        {{ property.no_of_bedrooms}} BHK Flat ( Floor : {{ property.floor }} )
+                                    </div>
+                                    
+                                    <div class="b-property__details__price">
+                                        {% if property.price|divide:1000 < 100 %}
+                                            ₹ {{ property.price|divide:1000 }} k
+                                        {% else %}
+                                        ₹ {{ property.price|divide:100000 }} Lakh
+                                        {% endif %} 
+                                    </div>
+                                    <div class="b-property__details__address">
+                                        {{ property.address.description }}
+                                    </div>
+                                    {{ property.owner.first_name}}
+                                </div>
+                            </div>
+                            <center>
+                                <div>
+                                    <div>
+                                        Property ID: {{ property.property_id }}
+                                    </div>
+                                </div>
+                                <div>
+                                    <div>
+                                        <h2>
+                                            Owner Details :
+                                        </h2> 
+                                    </div>
+                                    <div>
+                                        Name : {{property.owner.owner}}
+                                        <br>
+                                        Phone No : {{property.owner.owner.phone_no}}
+                                        <br>
+                                        email : {{ property.owner.owner.email}}
+                                    </div>
+                                </div>
+                            </center>
+                            </div>
+                        </div>
+                    </div>
+                </div>    
+            {% endfor %}
+        </div>
+        <div id="sale_report" class="not_show">
+            {% if purchases|is_empty_query %}
+                <div></div>
+                    YOU HAVEN'T SOLD/RENTED ANY PROPERTY YET!!     
+                </div>
+            {% else %}
+            <table>
+                <tbody>
+                <tr>
+                    <td>
+                        <b>Property Name</b>
+                    </td>
+                    <td>
+                        <b>Client Name</b>
+                    </td>
+                    <td>
+                        <b>Price</b>
+                    </td>
+                    <td>
+                        <b>Purchase ID</b>
+                    </td>
+                    <td>
+                        <b>Date of Purchase</b>
+                    </td>
+                    <td>
+                        <b>Property Type</b>
+                    </td>
+                    
+                </tr>
+            {% for purchase in purchases %}
+                <tr>
+                    <td>
+                        {{ purchase.property.property_name }}
+                    </td>
+                    <td>
+                        {{ purchase.client.client }}  
+                    </td>
+                    <td>
+                        {{ purchase.property.price }}
+                    </td>
+                    <td>
+                        {{ purchase.purchase_id }}
+                    </td>
+                    <td>
+                        {{ purchase.date_of_purchase|date }}
+                    </td>
+                    <td>
+                        {{ purchase.property.tag}}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+            </table>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<script>
+    var id_name = "sale_rent_update";
+    var selected_option = "1";
+    function selector(event, str){
+        if(id_name != str){
+
+            document.getElementById(this.id_name).classList.add("not_show");
+            document.getElementById(str).classList.remove("not_show");
+            this.id_name = str;
+            
+            document.getElementById(event.target.id).classList.add("select");
+            if(this.selected_option != event.target.id)
+                document.getElementById(this.selected_option).classList.remove("select");
+            this.selected_option = event.target.id;
+        }
+    };
+    function show_property_details(str){
+        document.getElementById(str).classList.remove('not_show');
+    };
+    function close_details(str){
+        document.getElementById(str).classList.add('not_show');
+    }
+</script>
+<style>
+    .b-property-details__parent{
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        background-color: rgb(73, 72, 72, 0.8);
+    }
+    .b-property-details{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        background-color: white;
+        padding: 13px;
+    }
+    table{
+        border-style: solid;
+        border-width: 1px;
+        border-collapse:collapse;
+        border-color: #22534e;
+    }
+    table tbody tr:first-child td{
+        border-bottom-style: solid;
+        border-width: 1px;
+        border-color: #22534e;
+    }
+    table tbody tr:not(:nth-child(2n)) td{
+        background-color: rgb(245, 245, 245);;
+    }
+    td{
+        padding: 8px;
+        color: #22534e;
+    }
+    .bold{
+        font-weight: bold;
+    }
+    #sale_report{
+        margin-left: 320px;
+    }
+    .nav-buttons{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin-top: 48px;
+    }
+    .success{
+        
+        color: green;
+        position: fixed;
+        top: 0;
+        margin-top: 16px;
+    }
+    .b-agent-s__options{
+        margin-top: 48px;
+        display: flex;
+        flex-direction: column;
+    }
+    .options{
+        padding: 16px;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-content: center;
+        cursor: pointer;
+    }
+    .select{
+        font-weight: bold;
+    }
+    .not_show{
+        display: none;
+    }
+    .options:not(:last-child){
+        border-bottom-style: solid;
+        border-width: 1px;
+    }
+    .options:hover{
+        font-weight: bold;
+    }
+    .b-agent_message{
+        position: fixed;
+        padding: 8px;
+        -webkit-box-shadow:0 1px 6px 0 rgba(0,0,0,0.05);
+    }
+    .b-agent-parent{
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        height: 100vh;
+        background-color: #f4f8f4;
+    }
+    .b-agent__sidebar{
+        bottom: 0;
+        top: 0;
+        position: fixed;
+        left: 32px;
+        margin-top: 60px;
+        color: white;
+        margin-right: 20px;
+        margin-left: 12px;
+        padding-top: 40px;
+        padding-left: 20px;
+        padding-right: 20px;
+        background: linear-gradient(to left, #4ca2cd, #67B26F);
+        margin-bottom: 45px;
+        border: 1px;
+        border-radius: 15px;
+    }
+    .b-agent{
+        display: flex;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        max-height: 100vh;
+        overflow: auto;
+        margin-top: 64px;
+    }
+    .b-agent::-webkit-scrollbar-track
+{
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	background-color: #d9fffc;
+}
+
+.b-agent::-webkit-scrollbar
+{
+	width: 6px;
+	background-color: #F5F5F5;
+}
+
+.b-agent::-webkit-scrollbar-thumb
+{
+	background-color: #2d6f68;
+}
+    .b-main-content{
+        margin-left: 312px;
+        color: #2d6f68;
+    }
+    .deact_btn{
+        background-color: #fff;
+        color: #35495e;
+        border: 1px solid #35495e;
+        padding: 4px;
+        border-radius: 20px;
+    }
+    .b-property{
+        -webkit-box-shadow:0 1px 6px 0 rgba(0,0,0,0.05);
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        margin: 24px;
+        margin-top: 0;
+        background-color: white;
+    }
+    .b-property__details{
+        margin-left: 16px;
+    }
+    .b-property__details__name{
+        font-size: 28px;
+    }
+    .b-property__details__area{
+        color: #87bab4;
+        font-size: 16px;
+        margin-top: 8px;
+        margin-bottom: 8px;
+    }
+    .b-property__details__price{
+        margin: 8px 0 8px 0;
+        font-weight: bold;
+    }
+    .b-property__details__address{
+        font-size: 14px;
+        color: #87bab4;
+        max-width: 268px;
+    }
+    .btn_update{
+        font-weight: 500;
+        font-size: 14px;
+        color: #2d6f68;
+        margin: 0;
+        margin-top: 8px;
+        padding: 7px;
+        min-width: 70px;
+        padding-left: 27px;
+        padding-right: 27px;
+        box-sizing: border-box;
+        border: 1px solid #2d6f68;
+        border-radius: 7px;
+        box-shadow: 2px 4px 7px 0 #0000001a;
+        background-color: white;
+        
+    }
+    .btn_update:hover{
+        background-color: rgb(238, 238, 238);
+    }
+    button{
+        -webkit-appearance: button;
+        cursor: pointer;
+        outline: none;
+    }
+    .b-property__action{
+        margin-left: 24px;
+    }
+</style>
+{% endblock %}

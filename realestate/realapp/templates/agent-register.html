@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load my_tags %}
+{% block title %}
+Agent Register
+{% endblock %}
+{% block body %}
+        <div class="b-client_parent">
+            <div onclick="window.history.back()" 
+        style="cursor: pointer; 
+        font-size:20px;
+        margin-left: -712px;
+        margin-bottom: 13px;
+        color:white;
+        ">
+            <i class="fa fa-angle-double-left" style="font-size:22px;"></i> back
+        </div>
+            <div class="b-client">
+                
+                <h2>Enter Agents's Information</h2>
+                <form action="" method="post">
+                    {% csrf_token %}
+                    {{ form1.as_p }}
+                    <br>
+                    {{ form2.as_p}}
+                    <br>
+                    <input type="submit" value="Submit" id="submit-btn"/>
+                    {{ form1.errors }}
+                    {{ form1.non_field_errors }}
+                    {{ form2.errors }}
+                    {{ form2.non_field_errors }}                
+                </form>
+            </div>
+        </div>
+
+<style>
+.b-client_parent{
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #22534e;
+    background: linear-gradient(to left, #4ca2cd, #67B26F);
+}
+.b-client{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: nowrap;
+    border-radius: 24px;
+    padding: 40px;
+    background-color: white;
+}
+#submit-btn{
+    padding-right: 32px;
+    float: right;
+    margin-top: 24px;
+    border: 1px;
+    background-color: #1f4f47;
+    color: white;
+    padding-left: 32px;
+    font-size: 17px;
+    cursor: pointer;
+}
+</style>
+{% endblock %}
